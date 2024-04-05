@@ -46,7 +46,7 @@ export default function Home() {
   ) => {
     e.preventDefault()
     try {
-      setPlaylistState({ ...playlistState, loading: true })
+      setPlaylistState({ ...emptyPlaylistState, loading: true })
       const res = await fetch(
         `/api/playlists/cross?p=${inputFields.join(',')}`,
         {
@@ -61,11 +61,11 @@ export default function Home() {
           noData: response.length === 0,
         })
       } else {
-        console.log('res', res)
+        throw new Error('Bad Request')
       }
     } catch (e: any) {
       reset()
-      setPlaylistState({ ...playlistState, errorMessage: e.message })
+      setPlaylistState({ ...emptyPlaylistState, errorMessage: e.message })
     }
   }
 
@@ -116,7 +116,7 @@ export default function Home() {
             {inputFields.map((playlistId, index) => {
               return (
                 <div
-                  className="flex content-center mb-2 gap-4"
+                  className={`flex content-center mb-2 gap-4 ${styles.inputFields}`}
                   key={`div-${index}`}
                 >
                   <input
@@ -127,15 +127,14 @@ export default function Home() {
                     name="playlistId"
                     value={playlistId}
                     onChange={(e) => handleFormChange(index, e)}
-                  ></input>
+                  />
                   {playlistId && (
                     <a
                       href={`https://open.spotify.com/playlist/${playlistId}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="underline"
                     >
-                      open playlist
+                      Open it <span>-&gt;</span>
                     </a>
                   )}
                   {/* {() => fetchApi(`/playlist/${playlistId}`)} */}
@@ -147,7 +146,7 @@ export default function Home() {
             </button>
             <div className="flex mt-4 gap-4">
               <button
-                onClick={handleFormSubmit}
+                type="submit"
                 className="block px-4 py-2 rounded-md bg-light-blue font-bold text-md text-red"
               >
                 Cross find!
@@ -185,7 +184,7 @@ export default function Home() {
                         rel="noreferrer"
                         className="underline"
                       >
-                        {track.artists.map((a) => a.name).join(',')} -{' '}
+                        {track.artists.map((a) => a.name).join(', ')} -{' '}
                         {track.name}
                       </a>
                     </li>
@@ -197,66 +196,10 @@ export default function Home() {
               )}
             </ul>
           </div>
-          {playlistState.errorMessage && <p>{playlistState.errorMessage}</p>}
         </div>
 
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+        <div>
+          {playlistState.errorMessage && <p>{playlistState.errorMessage}</p>}
         </div>
       </main>
     </>

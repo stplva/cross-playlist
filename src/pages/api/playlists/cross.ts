@@ -16,7 +16,7 @@ export default async function handler(
     logger.error(
       `Bad request: no or <2 playlists in query ${JSON.stringify(req.query)}`
     )
-    return res.status(400)
+    return res.status(400).json({})
   }
 
   const result = await findCrossPlaylist(playlistIds)
