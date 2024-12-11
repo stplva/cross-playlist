@@ -1,8 +1,12 @@
+'use client'
 import Head from 'next/head'
 import ClipLoader from 'react-spinners/ClipLoader'
 import styles from 'components/styles/Home.module.css'
 import { useState } from 'react'
 import { ShortPlaylist } from 'types/index'
+
+import { useSession } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
 
 const exampleInputFields = ['37i9dQZF1DWTJ7xPn4vNaz', '37i9dQZF1DWXRqgorJj26U']
 const SPOTIFY_WEB_APP = 'http://open.spotify.com'
@@ -21,6 +25,8 @@ export default function Home() {
     errorMessage: string
     noData: boolean
   }>(emptyPlaylistState)
+
+  const { data: session } = useSession()
 
   const showResetButton = inputFields.some((field) => field.length)
   const showExample = playlistState.errorMessage.includes('400')
@@ -126,18 +132,33 @@ export default function Home() {
           </a>
         </div>
 
-        <div className={styles.content}>
-          {/* <form onSubmit={handleSubmit}>
-            <input type="email" name="email" placeholder="Email" required />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              required
-            />
-            <button type="submit">Login</button>
-          </form> */}
+        {session ? (
+          <div className="flex justify-start w-full">
+            <div className="flex gap-2">
+              <p>
+                Signed in as{' '}
+                <span className="font-bold">{session?.user?.name}</span>
+              </p>
+              <p
+                className="opacity-70 underline cursor-pointer"
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center w-full">
+            <button
+              className="px-8 py-3 rounded-xl bg-white text-black text-lg"
+              onClick={() => signIn()}
+            >
+              Sign in
+            </button>
+          </div>
+        )}
 
+        <div className={styles.content}>
           <form onSubmit={handleFormSubmit}>
             <div className="flex flex-col gap-4">
               {inputFields.map((playlistId, index) => {
@@ -183,7 +204,9 @@ export default function Home() {
                 type="submit"
                 className="primary block px-4 py-2 rounded-md font-bold text-base"
                 disabled={
-                  playlistState.loading || inputFields.some((field) => !field)
+                  !session ||
+                  playlistState.loading ||
+                  inputFields.some((field) => !field)
                 }
               >
                 Find cross playlist!
