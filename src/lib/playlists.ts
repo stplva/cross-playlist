@@ -1,5 +1,4 @@
-import got from 'got'
-// import { auth } from './auth'
+import axios from 'axios'
 import { getArraysIntersection } from 'utils/index'
 import { Playlist, ShortPlaylist, Track } from 'types/index'
 import { createLogger } from 'utils/logger'
@@ -21,16 +20,23 @@ export const getPlaylistById = async (playlistId: string) => {
   const accessToken =
     'BQC8RT5BFYTInkLxh0G2kYr3EWCKSi6RCucmE9p4rPceGVgEMbjAKdTlvoZQYEuhKMi_89zGKBe11pLX0PDyShxtmRHgbQRcPYDtKL2DHHARYE8bFWBq133OD6b5rscMN2fES-2HT7AYUzNsOT3TpM56PfYH_gj7uc0k7dWBbRl3HDSfMCkxrFOOwiBdsc-tDtcRwJ-1Mu1pCF24sh9cx-Um-ijc2O26uRoRVexDBuwf6syD'
   try {
-    const res = await got(`${endpoints.playlists}/${playlistId}`, {
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-      },
-    }).json()
+    const res = await axios
+      .get(`${endpoints.playlists}/${playlistId}`, {
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then((res) => res.data)
+    // .catch((e) => {
+    //   throw e
+    // })
+
     return res as Playlist
   } catch (e: any) {
-    logger.error(`getPlaylistById Error: ${e.message}`)
+    logger.error(
+      `getPlaylistById Error: ${e.response?.data || e.request || e.message}`
+    )
     return
-    throw new Error(e.message)
   }
 }
 
