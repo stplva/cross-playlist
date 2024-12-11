@@ -8,7 +8,6 @@ import { ShortPlaylist } from 'types/index'
 import { useSession } from 'next-auth/react'
 import { signIn, signOut } from 'next-auth/react'
 
-const exampleInputFields = ['37i9dQZF1DWTJ7xPn4vNaz', '37i9dQZF1DWXRqgorJj26U']
 const SPOTIFY_WEB_APP = 'http://open.spotify.com'
 
 const emptyPlaylistState = {
@@ -29,7 +28,6 @@ export default function Home() {
   const { data: session } = useSession()
 
   const showResetButton = inputFields.some((field) => field.length)
-  const showExample = playlistState.errorMessage.includes('400')
 
   const reset = () => {
     setInputFields(['', ''])
@@ -104,11 +102,6 @@ export default function Home() {
     }
   }
 
-  const handleUseExample = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    reset()
-    setInputFields(exampleInputFields)
-  }
-
   return (
     <>
       <Head>
@@ -132,7 +125,7 @@ export default function Home() {
           </a>
         </div>
 
-        {session ? (
+        {session && (
           <div className="flex justify-start w-full">
             <div className="flex gap-2">
               <p>
@@ -147,10 +140,12 @@ export default function Home() {
               </p>
             </div>
           </div>
-        ) : (
-          <div className="flex justify-center w-full">
+        )}
+        {!session && (
+          <div className="flex flex-col items-center w-full gap-4">
+            <p>You need to be signed in to use this service!</p>
             <button
-              className="px-8 py-3 rounded-xl bg-white text-black text-lg"
+              className="px-12 py-5 rounded-xl bg-white text-black text-xl"
               onClick={() => signIn()}
             >
               Sign in
@@ -227,15 +222,6 @@ export default function Home() {
                   className="secondary block text-sm sm:text-base"
                 >
                   Reset
-                </button>
-              )}
-              {showExample && (
-                <button
-                  onClick={handleUseExample}
-                  type="button"
-                  className="secondary block px-4 py-2 text-sm sm:text-base"
-                >
-                  Try an example
                 </button>
               )}
             </div>
