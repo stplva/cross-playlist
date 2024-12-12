@@ -7,6 +7,7 @@ import { ShortPlaylist } from 'types/index'
 
 import { useSession } from 'next-auth/react'
 import { signIn, signOut } from 'next-auth/react'
+import { useThemeColor } from 'utils/theme'
 
 const SPOTIFY_WEB_APP = 'http://open.spotify.com'
 
@@ -26,6 +27,8 @@ export default function Home() {
   }>(emptyPlaylistState)
 
   const { data: session } = useSession()
+
+  const loaderColor = useThemeColor('--sub-text')
 
   const showResetButton = inputFields.some((field) => field.length)
 
@@ -249,14 +252,20 @@ export default function Home() {
             )}
             {playlistState.noData && <p>Nothing here :(</p>}
             {playlistState.loading && (
-              <ClipLoader loading={playlistState.loading} size={65} />
+              <ClipLoader
+                loading={playlistState.loading}
+                size={65}
+                color={loaderColor}
+              />
             )}
           </div>
         </div>
 
+        {playlistState.errorMessage && (
         <div>
-          {playlistState.errorMessage && <p>{playlistState.errorMessage}</p>}
+            <p>{playlistState.errorMessage}</p>
         </div>
+        )}
       </main>
     </>
   )

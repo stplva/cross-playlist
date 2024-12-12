@@ -40,12 +40,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #fff;
-    --sub-text: #dcdcdc;
+    --text: #eee;
+    --sub-text: #bababa;
 
     --background-gradient: linear-gradient(180deg, #121212, #000);
 
-    --button-primary-text: #e3e3e3;
+    --button-primary-text: #fff;
     --button-primary-background: #c02874;
     --button-disabled-background: #2b2b2b;
 
