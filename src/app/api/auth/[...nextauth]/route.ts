@@ -2,11 +2,19 @@ import NextAuth from 'next-auth/next'
 import { type NextAuthOptions } from 'next-auth'
 import SpotifyProvider from 'next-auth/providers/spotify'
 
-const options: NextAuthOptions = {
+const scopes = [
+  'playlist-read-private',
+  'playlist-read-collaborative',
+  'playlist-modify-private',
+  'playlist-modify-public',
+  'user-read-email',
+  'user-library-read',
+].join(',')
+
+export const authOptions: NextAuthOptions = {
   providers: [
     SpotifyProvider({
-      authorization:
-        'https://accounts.spotify.com/authorize?scope=user-read-email,playlist-read-private,playlist-modify-private,playlist-modify-public',
+      authorization: `https://accounts.spotify.com/authorize?scope=${scopes}`,
       clientId: process.env.SPOTIFY_CLIENT_ID || '',
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET || '',
     }),
@@ -14,7 +22,9 @@ const options: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        token.access_token = account.access_token
+        token.accessToken = account.access_token
+        token.refreshToken = account.refresh_token
+        token.accessTokenExpires = account.expires_at
       }
       return token
     },
@@ -27,6 +37,6 @@ const options: NextAuthOptions = {
   },
 }
 
-const handler = NextAuth(options)
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }

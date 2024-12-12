@@ -1,7 +1,9 @@
+import { NextRequest } from 'next/server'
 import axios from 'axios'
 import { getArraysIntersection } from 'utils/index'
 import { Playlist, ShortPlaylist, Track } from 'types/index'
 import { createLogger } from 'utils/logger'
+import { getToken } from 'next-auth/jwt'
 
 const logger = createLogger('lib/playlists')
 
@@ -14,11 +16,10 @@ const endpoints = {
   playlists: `${SPOTIFY_API_URL}/playlists`,
 }
 
-export const getPlaylistById = async (playlistId: string) => {
+export const getPlaylistById = async (req: NextRequest, playlistId: string) => {
   logger.info(`Getting playlist by id ${playlistId}`)
-  // const accessToken = await auth('');
-  const accessToken =
-    'BQC8RT5BFYTInkLxh0G2kYr3EWCKSi6RCucmE9p4rPceGVgEMbjAKdTlvoZQYEuhKMi_89zGKBe11pLX0PDyShxtmRHgbQRcPYDtKL2DHHARYE8bFWBq133OD6b5rscMN2fES-2HT7AYUzNsOT3TpM56PfYH_gj7uc0k7dWBbRl3HDSfMCkxrFOOwiBdsc-tDtcRwJ-1Mu1pCF24sh9cx-Um-ijc2O26uRoRVexDBuwf6syD'
+  const token = await getToken({ req })
+  const accessToken = token?.accessToken
   try {
     const res = await axios
       .get(`${endpoints.playlists}/${playlistId}`, {
@@ -33,21 +34,21 @@ export const getPlaylistById = async (playlistId: string) => {
 
     return res as Playlist
   } catch (e: any) {
-    logger.error(
-      `getPlaylistById Error: ${e.response?.data || e.request || e.message}`
-    )
+    const error = e.response?.data || e.request || e.message
+    logger.error(`getPlaylistById Error: ${JSON.stringify(error)}`)
     return
   }
 }
 
 export const findCrossPlaylist = async (
+  req: NextRequest,
   playlistIds: string[]
 ): Promise<ShortPlaylist[]> => {
   logger.info(`Finding a cross-playlist for playlists ${playlistIds}`)
 
   const playlists: (Playlist | undefined)[] = await Promise.all(
     playlistIds.map(async (id) => {
-      const foundPlaylist = await getPlaylistById(id)
+      const foundPlaylist = await getPlaylistById(req, id)
       if (!foundPlaylist) {
         logger.error(`Playlist with id ${id} wasn't found.`)
         return
