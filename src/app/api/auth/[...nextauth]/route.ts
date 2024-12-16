@@ -11,6 +11,37 @@ const scopes = [
   'user-library-read',
 ].join(',')
 
+// async function refreshAccessToken(token: any) {
+//   const response = await fetch('https://accounts.spotify.com/api/token', {
+//     method: 'POST',
+//     headers: {
+//       'content-type': 'application/x-www-form-urlencoded',
+//       Authorization:
+//         'Basic ' +
+//         new Buffer.from(
+//           process.env.SPOTIFY_CLIENT_ID +
+//             ':' +
+//             process.env.SPOTIFY_CLIENT_SECRET
+//         ).toString('base64'),
+//     },
+//     body: new URLSearchParams({
+//       grant_type: 'refresh_token',
+//       refresh_token: token.refreshToken,
+//       client_id: process.env.SPOTIFY_CLIENT_ID,
+//     }),
+//   })
+
+//   const data = await response.json()
+
+//   console.log('DATA FOR TOKEN = ', data)
+
+//   return {
+//     accessToken: data.access_token,
+//     refreshToken: data.refresh_token ?? token.refreshToken,
+//     accessTokenExpires: Date.now() + data.expires_in * 1000,
+//   }
+// }
+
 export const authOptions: NextAuthOptions = {
   providers: [
     SpotifyProvider({
@@ -27,6 +58,11 @@ export const authOptions: NextAuthOptions = {
         token.accessTokenExpires = account.expires_at
       }
       return token
+      // if (Date.now() < token.accessTokenExpires * 1000) {
+      //   return token
+      // }
+
+      // return refreshAccessToken(token)
     },
     async session({ session, token }) {
       return {

@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
     const result = await findCrossPlaylist(req, playlistIds)
     return Response.json(result, { status: 200 })
   } catch (e: any) {
+    console.log('FINALLY, the ERROR', e)
     return Response.json(e, { status: 500 })
   }
 }

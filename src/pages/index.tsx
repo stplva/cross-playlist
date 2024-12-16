@@ -117,20 +117,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <h1>Cross Playlist</h1>
-          <a
-            href="https://github.com/stplva"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By @stplva
-          </a>
+        <div className="w-full">
+          <h1 className={styles.title}>Cross Playlist</h1>
         </div>
 
         {session && (
-          <div className="flex justify-start w-full">
-            <div className="flex gap-2">
+          <div className="flex justify-between w-full gap-8">
+            <div className="flex gap-2 flex-1">
               <p>
                 Signed in as{' '}
                 <span className="font-bold">{session?.user?.name}</span>
@@ -142,6 +135,11 @@ export default function Home() {
                 Sign Out
               </p>
             </div>
+            {!playlistState.loading && crossPlaylist?.length > 0 && (
+              <div className="flex-1">
+                <h3 className="font-bold">Your common tracks:</h3>
+              </div>
+            )}
           </div>
         )}
         {!session && (
@@ -230,17 +228,16 @@ export default function Home() {
             </div>
           </form>
 
-          <div className="">
+          <div>
             {!playlistState.loading && crossPlaylist?.length > 0 && (
-              <ul className="overflow-scroll">
+              <ul>
                 {crossPlaylist.map((track) => {
                   return (
-                    <li key={track.id}>
+                    <li key={track.id} className="pb-2">
                       <a
                         href={`${SPOTIFY_WEB_APP}/track/${track.id}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="underline"
                       >
                         {track.artists.map((a) => a.name).join(', ')} -{' '}
                         {track.name}
@@ -262,10 +259,22 @@ export default function Home() {
         </div>
 
         {playlistState.errorMessage && (
-        <div>
+          <div>
             <p>{playlistState.errorMessage}</p>
-        </div>
+          </div>
         )}
+
+        <div className="">
+          <span>Created by </span>
+          <a
+            href="https://github.com/stplva"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            @stplva
+          </a>
+        </div>
       </main>
     </>
   )
