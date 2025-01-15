@@ -1,7 +1,6 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: center;
   padding: 2rem 1.5rem;
   min-height: 100vh;
@@ -15,6 +14,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--heading);
+  text-align: center;
 }
 
 .content {
@@ -45,6 +45,19 @@
 @media (hover: hover) and (pointer: fine) {
   .inputField a:hover > span {
     transform: translateX(4px);
+  }
+}
+
+.buttonGlow {
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px #e6a900, 0 0 15px #ffd336;
+  }
+  to {
+    box-shadow: 0 0 15px #fff589, 0 0 20px #fff589;
   }
 }
 
