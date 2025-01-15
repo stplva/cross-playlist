@@ -122,10 +122,14 @@ export default function Home() {
           session ? 'justify-start' : 'justify-between'
         }`}
       >
-        <div className="flex flex-col gap-8">
-          <div className="w-full">
-            <h1 className={styles.title}>Cross Playlist</h1>
-          </div>
+        <div className="flex flex-col">
+          <h1 className={`pb-8 ${styles.title}`}>Cross Playlist</h1>
+
+          <p>
+            Welcome! Here you can find a cross playlist of 2 or more Spotify
+            playlists. Just copy your playlists' link/id and paste them into
+            inputs below to start! Enjoy ✨
+          </p>
 
           {isLoading && (
             <div className="flex justify-center">
@@ -134,7 +138,7 @@ export default function Home() {
           )}
 
           {!isLoading && session && (
-            <div className="flex justify-between w-full gap-8">
+            <div className="flex justify-between w-full gap-8 pt-8">
               <div className="flex gap-2 flex-1">
                 <p>
                   Signed in as{' '}
@@ -154,9 +158,12 @@ export default function Home() {
               )}
             </div>
           )}
+
           {!isLoading && !session && (
-            <div className="flex flex-col items-center w-full gap-4">
-              <p>You need to be signed in to use this service!</p>
+            <div className="flex flex-col items-center w-full gap-6 pt-8">
+              <p className="text-base">
+                You need to be signed in to use this service!
+              </p>
               <button
                 className={`${styles.buttonGlow} px-12 py-5 rounded-xl bg-white text-black text-xl`}
                 onClick={() => signIn()}
@@ -219,7 +226,7 @@ export default function Home() {
                     inputFields.some((field) => !field)
                   }
                 >
-                  Find cross playlist!
+                  Crossify!
                 </button>
                 {/* {!playlistState.loading &&
                 crossPlaylist.length > MIN_TRACKS_TO_SAVE_PLAYLIST && (
