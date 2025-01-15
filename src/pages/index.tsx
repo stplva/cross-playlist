@@ -194,6 +194,7 @@ export default function Home() {
                         onChange={(e) => handleChange(index, e)}
                         onPaste={(e) => handlePaste(index, e)}
                         onBlur={(e) => handleValidateOnBlur(index, e)}
+                        autoComplete="off"
                       />
                       {playlistId && (
                         <a
