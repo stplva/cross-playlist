@@ -42,7 +42,7 @@ const scopes = [
 //   }
 // }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     SpotifyProvider({
       authorization: `https://accounts.spotify.com/authorize?scope=${scopes}`,
