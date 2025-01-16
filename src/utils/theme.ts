@@ -23,3 +23,32 @@ export const useThemeColor = (cssVariable: string) => {
 
   return color
 }
+
+export const useMediaQuery = (query: string): boolean => {
+  const actualWindow = typeof window !== 'undefined' ? window : null
+  const [value, setValue] = useState({ query, matches: false })
+
+  useEffect(() => {
+    if (!(actualWindow && typeof actualWindow.matchMedia === 'function')) return
+    const mql = actualWindow.matchMedia(query)
+    setValue({ query, matches: mql.matches })
+
+    const changeHandler = (mql: MediaQueryListEvent) => {
+      setValue((prev) => {
+        return { ...prev, matches: mql.matches }
+      })
+    }
+
+    mql.onchange = changeHandler
+
+    return () => {
+      mql.onchange = null
+    }
+  }, [actualWindow])
+
+  return value.matches
+}
+
+export const useIsTablet = () => {
+  return useMediaQuery('screen and (min-width: 640px)')
+}

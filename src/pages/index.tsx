@@ -7,7 +7,7 @@ import { ShortPlaylist } from 'types/index'
 
 import { useSession } from 'next-auth/react'
 import { signIn, signOut } from 'next-auth/react'
-import { useThemeColor } from 'utils/theme'
+import { useIsTablet, useThemeColor } from 'utils/theme'
 import { AlertBanner } from 'components/components/AlertBanner'
 
 const SPOTIFY_WEB_APP = 'http://open.spotify.com'
@@ -33,6 +33,7 @@ export default function Home() {
   const isLoading = status === 'loading'
 
   const loaderColor = useThemeColor('--sub-text')
+  const isTablet = useIsTablet()
 
   const showResetButton =
     inputFields.length > 2 || inputFields.some((field) => field.length)
@@ -131,11 +132,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main
-        className={`${styles.main} ${
-          session ? 'justify-start' : 'justify-between'
-        }`}
-      >
+      <main className={`${styles.main} justify-between`}>
         <div className="flex flex-col">
           <h1 className={`pb-8 ${styles.title}`}>Cross Playlist</h1>
 
@@ -187,11 +184,15 @@ export default function Home() {
                   Sign Out
                 </p>
               </div>
-              {!playlistState.loading && crossPlaylist?.length > 0 && (
-                <div className="flex-1">
-                  <h3 className="font-bold">The common tracks are:</h3>
-                </div>
-              )}
+              {!playlistState.loading &&
+                crossPlaylist?.length > 0 &&
+                isTablet && (
+                  <div className="flex-1">
+                    <h3 className="font-bold text-base">
+                      The common tracks are:
+                    </h3>
+                  </div>
+                )}
             </div>
           )}
 
@@ -208,64 +209,63 @@ export default function Home() {
               </button>
             </div>
           )}
-        </div>
 
-        {!isLoading && session && (
-          <div className={styles.content}>
-            <form onSubmit={handleFormSubmit}>
-              <div className="flex flex-col gap-4">
-                {inputFields.map((playlistId, index) => {
-                  return (
-                    <div
-                      className={`flex sm:flex-col items-center sm:items-start gap-4 sm:gap-1 ${styles.inputField}`}
-                      key={`div-${index}`}
-                    >
-                      <input
-                        className="block px-2 py-1.5 w-2/3 sm:w-full rounded-md bg-transparent border-2 font-light"
-                        key={index}
-                        type="text"
-                        placeholder={`Playlist #${index + 1} id`}
-                        name="playlistId"
-                        value={playlistId}
-                        onChange={(e) => handleChange(index, e)}
-                        onPaste={(e) => handlePaste(index, e)}
-                        onBlur={(e) => handleValidateOnBlur(index, e)}
-                        autoComplete="playlist-id"
-                      />
-                      {playlistId && (
-                        <a
-                          href={`https://open.spotify.com/playlist/${playlistId}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Open <span>-&gt;</span>
-                        </a>
-                      )}
-                      {/* {() => fetchApi(`/playlist/${playlistId}`)} */}
-                    </div>
-                  )
-                })}
-              </div>
-              <button
-                onClick={handleAddFields}
-                type="button"
-                className="primary px-2 mt-4 rounded-md font-bold"
-              >
-                +
-              </button>
-              <div className="flex mt-4 gap-4">
+          {!isLoading && session && (
+            <div className={`pt-8 ${styles.content}`}>
+              <form onSubmit={handleFormSubmit}>
+                <div className="flex flex-col gap-4">
+                  {inputFields.map((playlistId, index) => {
+                    return (
+                      <div
+                        className={`flex sm:flex-col items-center sm:items-start gap-4 sm:gap-1 ${styles.inputField}`}
+                        key={`div-${index}`}
+                      >
+                        <input
+                          className="block px-2 py-1.5 w-2/3 sm:w-full rounded-md bg-transparent border-2 font-light"
+                          key={index}
+                          type="text"
+                          placeholder={`Playlist #${index + 1} id`}
+                          name="playlistId"
+                          value={playlistId}
+                          onChange={(e) => handleChange(index, e)}
+                          onPaste={(e) => handlePaste(index, e)}
+                          onBlur={(e) => handleValidateOnBlur(index, e)}
+                          autoComplete="playlist-id"
+                        />
+                        {playlistId && (
+                          <a
+                            href={`https://open.spotify.com/playlist/${playlistId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Open <span>-&gt;</span>
+                          </a>
+                        )}
+                        {/* {() => fetchApi(`/playlist/${playlistId}`)} */}
+                      </div>
+                    )
+                  })}
+                </div>
                 <button
-                  type="submit"
-                  className="primary block px-4 py-2 rounded-md font-bold text-base"
-                  disabled={
-                    !session ||
-                    playlistState.loading ||
-                    inputFields.some((field) => !field)
-                  }
+                  onClick={handleAddFields}
+                  type="button"
+                  className="primary px-2 mt-4 rounded-md font-bold"
                 >
-                  Crossify!
+                  +
                 </button>
-                {/* {!playlistState.loading &&
+                <div className="flex mt-4 gap-4">
+                  <button
+                    type="submit"
+                    className="primary block px-4 py-2 rounded-md font-bold text-base"
+                    disabled={
+                      !session ||
+                      playlistState.loading ||
+                      inputFields.some((field) => !field)
+                    }
+                  >
+                    Crossify!
+                  </button>
+                  {/* {!playlistState.loading &&
                 crossPlaylist.length > MIN_TRACKS_TO_SAVE_PLAYLIST && (
                   <button
                     onClick={handleCreatePlaylist}
@@ -274,46 +274,54 @@ export default function Home() {
                     Save this playlist!
                   </button>
                 )} */}
-                {showResetButton && (
-                  <button
-                    onClick={reset}
-                    type="button"
-                    className="secondary block text-sm sm:text-base"
-                  >
-                    Reset
-                  </button>
+                  {showResetButton && (
+                    <button
+                      onClick={reset}
+                      type="button"
+                      className="secondary block text-sm sm:text-base"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              <div>
+                {!playlistState.loading &&
+                  crossPlaylist?.length > 0 &&
+                  !isTablet && (
+                    <h3 className="font-bold text-base pb-4">
+                      The common tracks are:
+                    </h3>
+                  )}
+                {!playlistState.loading && crossPlaylist?.length > 0 && (
+                  <ul>
+                    {crossPlaylist.map((track) => (
+                      <li key={track.id} className="pb-2">
+                        <a
+                          href={`${SPOTIFY_WEB_APP}/track/${track.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {track.artists.map((a) => a.name).join(', ')} -{' '}
+                          {track.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {playlistState.noData && <p>No common tracks here :(</p>}
+                {playlistState.loading && (
+                  <ClipLoader
+                    loading={playlistState.loading}
+                    size={65}
+                    color={loaderColor}
+                  />
                 )}
               </div>
-            </form>
-
-            <div>
-              {!playlistState.loading && crossPlaylist?.length > 0 && (
-                <ul>
-                  {crossPlaylist.map((track) => (
-                    <li key={track.id} className="pb-2">
-                      <a
-                        href={`${SPOTIFY_WEB_APP}/track/${track.id}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {track.artists.map((a) => a.name).join(', ')} -{' '}
-                        {track.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {playlistState.noData && <p>No common tracks here :(</p>}
-              {playlistState.loading && (
-                <ClipLoader
-                  loading={playlistState.loading}
-                  size={65}
-                  color={loaderColor}
-                />
-              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div>
           <span>Created by </span>
