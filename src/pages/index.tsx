@@ -2,12 +2,13 @@
 import Head from 'next/head'
 import ClipLoader from 'react-spinners/ClipLoader'
 import styles from 'components/styles/Home.module.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ShortPlaylist } from 'types/index'
 
 import { useSession } from 'next-auth/react'
 import { signIn, signOut } from 'next-auth/react'
 import { useThemeColor } from 'utils/theme'
+import { AlertBanner } from 'components/components/AlertBanner'
 
 const SPOTIFY_WEB_APP = 'http://open.spotify.com'
 
@@ -18,13 +19,15 @@ const emptyPlaylistState = {
 }
 
 export default function Home() {
-  const [inputFields, setInputFields] = useState<string[]>(['', ''])
+  const [inputFields, setInputFields] = useState(['', ''])
   const [crossPlaylist, setCrossPlaylist] = useState<ShortPlaylist[]>([])
   const [playlistState, setPlaylistState] = useState<{
     loading: boolean
     errorMessage: string
     noData: boolean
   }>(emptyPlaylistState)
+
+  const [isTokenExpired, setTokenExpired] = useState(false)
 
   const { data: session, status } = useSession()
   const isLoading = status === 'loading'
@@ -83,29 +86,37 @@ export default function Home() {
     e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault()
-    try {
-      setPlaylistState({ ...emptyPlaylistState, loading: true })
-      const res = await fetch(
-        `/api/playlists/cross?p=${inputFields.join(',')}`,
-        {
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-      if (res.ok) {
-        const response = await res.json()
-        setCrossPlaylist(response)
-        setPlaylistState({
-          ...emptyPlaylistState,
-          noData: response.length === 0,
-        })
-      } else {
-        throw new Error('Bad Request')
-      }
-    } catch (e: any) {
+    setPlaylistState({ ...emptyPlaylistState, loading: true })
+    const res = await fetch(`/api/playlists/cross?p=${inputFields.join(',')}`, {
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (res.ok) {
+      const response = await res.json()
+      setCrossPlaylist(response)
+      setPlaylistState({
+        ...emptyPlaylistState,
+        noData: response.length === 0,
+      })
+    } else {
       reset()
-      setPlaylistState({ ...emptyPlaylistState, errorMessage: e.message })
+      if (res.status === 401) {
+        setTokenExpired(true)
+        return
+      }
+      setPlaylistState({ ...emptyPlaylistState, errorMessage: 'Bad Request' })
     }
   }
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (isTokenExpired) {
+      timer = setTimeout(() => {
+        reset()
+        signOut()
+      }, 4000)
+    }
+    return () => clearTimeout(timer)
+  }, [isTokenExpired])
 
   return (
     <>
@@ -127,6 +138,22 @@ export default function Home() {
       >
         <div className="flex flex-col">
           <h1 className={`pb-8 ${styles.title}`}>Cross Playlist</h1>
+
+          {isTokenExpired && (
+            <AlertBanner
+              title="Token expired!"
+              text="You will be logged out in 4 seconds..."
+              className="mb-8"
+            />
+          )}
+
+          {playlistState.errorMessage && (
+            <AlertBanner
+              title="Error:"
+              text={playlistState.errorMessage}
+              className="mb-8"
+            />
+          )}
 
           <p className="pb-3">
             Welcome to your go-to playlist intersection tool! Whether you're
@@ -285,12 +312,6 @@ export default function Home() {
                 />
               )}
             </div>
-          </div>
-        )}
-
-        {playlistState.errorMessage && (
-          <div>
-            <p>{playlistState.errorMessage}</p>
           </div>
         )}
 

@@ -10,7 +10,7 @@ const logger = createLogger('lib/playlists')
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1'
 const SPOTIFY_DOMAIN_URL = 'https://accounts.spotify.com'
 
-const endpoints = {
+const SPOTIFY_ENDPOINTS = {
   authorize: `${SPOTIFY_DOMAIN_URL}/authorize`,
   token: `${SPOTIFY_DOMAIN_URL}/api/token`,
   playlists: `${SPOTIFY_API_URL}/playlists`,
@@ -22,7 +22,7 @@ export const getPlaylistById = async (req: NextRequest, playlistId: string) => {
   const accessToken = token?.accessToken
   try {
     const res = await axios
-      .get(`${endpoints.playlists}/${playlistId}`, {
+      .get(`${SPOTIFY_ENDPOINTS.playlists}/${playlistId}`, {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -34,9 +34,9 @@ export const getPlaylistById = async (req: NextRequest, playlistId: string) => {
 
     return res as Playlist
   } catch (e: any) {
-    const error = e.response?.data || e.request || e.message
+    const error = e.response?.data || e.message
     logger.error(`getPlaylistById Error: ${JSON.stringify(error)}`)
-    return
+    throw e
   }
 }
 
@@ -46,18 +46,13 @@ export const findCrossPlaylist = async (
 ): Promise<ShortPlaylist[]> => {
   logger.info(`Finding a cross-playlist for playlists ${playlistIds}`)
 
-  const playlists: (Playlist | undefined)[] = await Promise.all(
+  let playlists: (Playlist | null)[] = []
+  playlists = await Promise.all(
     playlistIds.map(async (id) => {
-      const foundPlaylist = await getPlaylistById(req, id)
-      if (!foundPlaylist) {
-        logger.error(`Playlist with id ${id} wasn't found.`)
-        return
-      }
-      return foundPlaylist
+      const playlist = await getPlaylistById(req, id)
+      return playlist
     })
   )
-
-  if (playlists.some((i) => !i)) return []
 
   const tracks: ShortPlaylist[][] = playlists?.map((playlist: any) => {
     return playlist?.tracks?.items.map((item: { track: Track }) => {
