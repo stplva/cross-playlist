@@ -157,11 +157,9 @@ export default function Home() {
             looking to find shared tracks between your Spotify playlists or
             discover common songs with friends, we've got you covered.
           </p>
-          <p>
-            Getting started is simple: just copy the links to your playlists,
-            paste them into inputs below, and let the app work its magic. In
-            seconds, you'll see all the overlapping tracks neatly displayed.
-            Happy crossifying ✨
+          <p className="pb-3">
+            To get started, copy the links to your playlists, paste them into
+            inputs below, and let the app work its magic. Happy crossifying ✨
           </p>
 
           {isLoading && (
