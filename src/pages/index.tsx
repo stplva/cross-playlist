@@ -31,7 +31,8 @@ export default function Home() {
 
   const loaderColor = useThemeColor('--sub-text')
 
-  const showResetButton = inputFields.some((field) => field.length)
+  const showResetButton =
+    inputFields.length > 2 || inputFields.some((field) => field.length)
 
   const reset = () => {
     setInputFields(['', ''])
@@ -109,10 +110,12 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Find Cross Playlist from Spotify | @stplva</title>
+        <title>
+          Cross Playlist – Spotify Playlist Overlap Finder | @stplva
+        </title>
         <meta
           name="description"
-          content="Find a cross playlist of 2 or more Spotify playlists."
+          content="Easily compare Spotify playlists and find the songs they have in common. Perfect for creating shared playlists or finding your music overlap!"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -125,10 +128,16 @@ export default function Home() {
         <div className="flex flex-col">
           <h1 className={`pb-8 ${styles.title}`}>Cross Playlist</h1>
 
+          <p className="pb-3">
+            Welcome to your go-to playlist intersection tool! Whether you're
+            looking to find shared tracks between your Spotify playlists or
+            discover common songs with friends, we've got you covered.
+          </p>
           <p>
-            Welcome! Here you can find a cross playlist of 2 or more Spotify
-            playlists. Just copy your playlists' link/id and paste them into
-            inputs below to start! Enjoy ✨
+            Getting started is simple: just copy the links to your playlists,
+            paste them into inputs below, and let the app work its magic. In
+            seconds, you'll see all the overlapping tracks neatly displayed.
+            Happy crossifying ✨
           </p>
 
           {isLoading && (
@@ -153,7 +162,7 @@ export default function Home() {
               </div>
               {!playlistState.loading && crossPlaylist?.length > 0 && (
                 <div className="flex-1">
-                  <h3 className="font-bold">Your common tracks:</h3>
+                  <h3 className="font-bold">The common tracks are:</h3>
                 </div>
               )}
             </div>
@@ -162,7 +171,7 @@ export default function Home() {
           {!isLoading && !session && (
             <div className="flex flex-col items-center w-full gap-6 pt-8">
               <p className="text-base">
-                You need to be signed in to use this service!
+                You need to be signed in to use this app!
               </p>
               <button
                 className={`${styles.buttonGlow} px-12 py-5 rounded-xl bg-white text-black text-xl`}
@@ -194,7 +203,7 @@ export default function Home() {
                         onChange={(e) => handleChange(index, e)}
                         onPaste={(e) => handlePaste(index, e)}
                         onBlur={(e) => handleValidateOnBlur(index, e)}
-                        autoComplete="off"
+                        autoComplete="playlist-id"
                       />
                       {playlistId && (
                         <a
@@ -253,23 +262,21 @@ export default function Home() {
             <div>
               {!playlistState.loading && crossPlaylist?.length > 0 && (
                 <ul>
-                  {crossPlaylist.map((track) => {
-                    return (
-                      <li key={track.id} className="pb-2">
-                        <a
-                          href={`${SPOTIFY_WEB_APP}/track/${track.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {track.artists.map((a) => a.name).join(', ')} -{' '}
-                          {track.name}
-                        </a>
-                      </li>
-                    )
-                  })}
+                  {crossPlaylist.map((track) => (
+                    <li key={track.id} className="pb-2">
+                      <a
+                        href={`${SPOTIFY_WEB_APP}/track/${track.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {track.artists.map((a) => a.name).join(', ')} -{' '}
+                        {track.name}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               )}
-              {playlistState.noData && <p>Nothing here :(</p>}
+              {playlistState.noData && <p>No common tracks here :(</p>}
               {playlistState.loading && (
                 <ClipLoader
                   loading={playlistState.loading}
