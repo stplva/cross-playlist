@@ -1,6 +1,8 @@
-# Cross Playlist Spotify
+# Cross Playlist – Spotify Playlist Overlap Finder
 
 This is a project that finds an intersection between your playlists – a so called cross-playlist!
+
+Easily compare Spotify playlists and find the songs they have in common. Perfect for creating shared playlists or finding your music overlap!
 
 Built with Next.js. Auth is handled by next-auth and Spotify Provider.
 
