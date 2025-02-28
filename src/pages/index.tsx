@@ -132,9 +132,13 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${styles.main} justify-between`}>
+      <main
+        className={`${styles.main} flex flex-col items-center justify-between min-h-screen w-full mx-auto gap-8`}
+      >
         <div className="flex flex-col">
-          <h1 className={`pb-8 ${styles.title}`}>Cross Playlist</h1>
+          <h1 className={`pb-8 text-center font-bold ${styles.title}`}>
+            Cross Playlist
+          </h1>
 
           {isTokenExpired && (
             <AlertBanner
@@ -200,7 +204,7 @@ export default function Home() {
                 You need to be signed in to use this app!
               </p>
               <button
-                className={`${styles.buttonGlow} px-12 py-5 rounded-xl bg-white text-black text-xl`}
+                className={`px-12 py-5 rounded-xl bg-white text-black text-xl ${styles.buttonGlow}`}
                 onClick={() => signIn()}
               >
                 Sign in
@@ -209,8 +213,10 @@ export default function Home() {
           )}
 
           {!isLoading && session && (
-            <div className={`pt-8 ${styles.content}`}>
-              <form onSubmit={handleFormSubmit}>
+            <div
+              className={`flex flex-col items-start justify-center w-full gap-8 pt-8 ${styles.content}`}
+            >
+              <form onSubmit={handleFormSubmit} className="flex-1 w-full">
                 <div className="flex flex-col gap-4">
                   {inputFields.map((playlistId, index) => {
                     return (
@@ -284,7 +290,7 @@ export default function Home() {
                 </div>
               </form>
 
-              <div>
+              <div className="flex-1 w-full">
                 {!playlistState.loading &&
                   crossPlaylist?.length > 0 &&
                   !isTablet && (
