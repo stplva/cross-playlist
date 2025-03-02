@@ -4,11 +4,14 @@ import ClipLoader from 'react-spinners/ClipLoader'
 import styles from 'components/styles/Home.module.css'
 import { useEffect, useState } from 'react'
 import { ShortPlaylist } from 'types/index'
+import { z } from 'zod'
 
 import { useSession } from 'next-auth/react'
 import { signIn, signOut } from 'next-auth/react'
 import { useIsTablet, useThemeColor } from 'utils/theme'
 import { AlertBanner } from 'components/components/AlertBanner'
+import { extractPlaylistIdFromUrl } from 'utils/index'
+import { validateZodStringSchema } from 'utils/validateZodSchema'
 
 const SPOTIFY_WEB_APP = 'http://open.spotify.com'
 
@@ -20,6 +23,7 @@ const emptyPlaylistState = {
 
 export default function Home() {
   const [inputFields, setInputFields] = useState(['', ''])
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({})
   const [crossPlaylist, setCrossPlaylist] = useState<ShortPlaylist[]>([])
   const [playlistState, setPlaylistState] = useState<{
     loading: boolean
@@ -40,12 +44,13 @@ export default function Home() {
 
   const reset = () => {
     setInputFields(['', ''])
+    setErrors({})
     setCrossPlaylist([])
     setPlaylistState(emptyPlaylistState)
   }
 
-  const handleAddFields = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setInputFields([...inputFields, ''])
+  const handleAddFields = () => {
+    setInputFields((prev) => [...prev, ''])
   }
 
   const handleChange = (
@@ -62,14 +67,10 @@ export default function Home() {
     e: React.ClipboardEvent<HTMLInputElement>
   ) => {
     const pastedText = e.clipboardData?.getData('text') || ''
-    const playlistUrlMatch =
-      /^(https:\/\/open.spotify.com\/playlist\/)([a-zA-Z0-9]+)(.*)$/.exec(
-        pastedText
-      )
+    const playlistId = extractPlaylistIdFromUrl(pastedText)
 
     const data = [...inputFields]
-    if (playlistUrlMatch) {
-      const playlistId = playlistUrlMatch[2]
+    if (playlistId) {
       data[index] = playlistId
     } else {
       data[index] = pastedText
@@ -79,9 +80,16 @@ export default function Home() {
   }
 
   const handleValidateOnBlur = (
-    index: number,
     e: React.FocusEvent<HTMLInputElement, Element>
-  ) => {}
+  ) => {
+    const { value, name } = e.currentTarget
+    const zodResult = validateZodStringSchema(playlistIdSchema, value)
+    if (zodResult.success) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }))
+      return
+    }
+    setErrors((prev) => ({ ...prev, [name]: zodResult.error }))
+  }
 
   const handleFormSubmit = async (
     e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
@@ -229,13 +237,18 @@ export default function Home() {
                           key={index}
                           type="text"
                           placeholder={`Playlist #${index + 1} id`}
-                          name="playlistId"
+                          name={`playlistId-${index}`}
                           value={playlistId}
                           onChange={(e) => handleChange(index, e)}
                           onPaste={(e) => handlePaste(index, e)}
-                          onBlur={(e) => handleValidateOnBlur(index, e)}
+                          onBlur={handleValidateOnBlur}
                           autoComplete="playlist-id"
                         />
+                        {errors[`playlistId-${index}`] && (
+                          <span className="text-red-300">
+                            {errors[`playlistId-${index}`]}
+                          </span>
+                        )}
                         {playlistId && (
                           <a
                             href={`https://open.spotify.com/playlist/${playlistId}`}
@@ -342,3 +355,8 @@ export default function Home() {
     </>
   )
 }
+
+const playlistIdSchema = z
+  .string()
+  .trim()
+  .length(22, { message: 'Please enter a valid playlist ID' })
