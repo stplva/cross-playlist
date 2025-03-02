@@ -201,13 +201,13 @@ export default function Home() {
           {!isLoading && !session && (
             <div className="flex flex-col items-center w-full gap-6 pt-8">
               <p className="text-base">
-                You need to be signed in to use this app!
+                You need to be signed in with Spotify to use this app!
               </p>
               <button
                 className={`px-12 py-5 rounded-xl bg-white text-black text-xl ${styles.buttonGlow}`}
                 onClick={() => signIn()}
               >
-                Sign in
+                Start
               </button>
             </div>
           )}
