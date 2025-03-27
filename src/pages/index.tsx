@@ -341,6 +341,7 @@ export default function Home() {
         </div>
 
         <div>
+          <div className="sm:inline-block">
           <span>Created by </span>
           <a
             href="https://github.com/stplva"
@@ -349,6 +350,11 @@ export default function Home() {
             className="underline"
           >
             @stplva
+            </a>
+          </div>
+          <a href="/agreements" className="text-sm opacity-70">
+            <span className="hidden sm:inline px-2">•</span>
+            Privacy Policy
           </a>
         </div>
       </main>
